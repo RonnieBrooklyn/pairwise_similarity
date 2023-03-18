@@ -9,7 +9,7 @@ from collections import Counter
 from inputs import SAMPLE_DOCS
 
 
-def convert_doc_to_list(doc:str) -> List:
+def convert_doc_to_list(doc: str) -> List:
     """
     Takes raw string of doc and returns list of words minus punctuation and new lines.
 
@@ -22,10 +22,14 @@ def convert_doc_to_list(doc:str) -> List:
     *Forgive my use of py3 string.translate()
 
     """
-    return doc.translate(str.maketrans('', '', string.punctuation)).replace('\n', ' ').split(' ')
+    return (
+        doc.translate(str.maketrans("", "", string.punctuation))
+        .replace("\n", " ")
+        .split(" ")
+    )
 
 
-def convert_doc_words_to_tf(doc:List) -> Dict[str, int]:
+def convert_doc_words_to_tf(doc: List) -> Dict[str, int]:
     """
     Takes a single document and returns term frequency for each word in documenbt
 
@@ -44,14 +48,14 @@ def convert_doc_words_to_tf(doc:List) -> Dict[str, int]:
     counts = Counter(doc)
 
     # bug fix - a null word showing up in text.
-    if '' in counts.keys():
-        del counts['']
+    if "" in counts.keys():
+        del counts[""]
 
     num_words = sum(counts.values())
     return {word: counts[word] / num_words for word in counts.keys()}
 
 
-def build_base_doc_db(raw_docs:List[str]) -> Dict[str, dict]:
+def build_base_doc_db(raw_docs: List[str]) -> Dict[str, dict]:
     """
     Returns a basic db which contains an id for each doc along with term frequency map for the doc.
 
@@ -68,14 +72,14 @@ def build_base_doc_db(raw_docs:List[str]) -> Dict[str, dict]:
     for i, one_doc in enumerate(raw_docs):
         doc_list = convert_doc_to_list(one_doc)
         doc_tf = convert_doc_words_to_tf(doc_list)
-        doc_db[f'doc_{i}'] = {
-            'tf': doc_tf, # TODO: consider CONSTS for dict keys
-            'num_words': len(doc_list)
+        doc_db[f"doc_{i}"] = {
+            "tf": doc_tf,  # TODO: consider CONSTS for dict keys
+            "num_words": len(doc_list),
         }
     return doc_db
 
 
-def normalize_tf(doc_db:Dict[str, dict]):
+def normalize_tf(doc_db: Dict[str, dict]):
     """
     Builds tf for each doc based on a global vocabulary of documents.
 
@@ -92,19 +96,19 @@ def normalize_tf(doc_db:Dict[str, dict]):
 
     # build vocabulary
     for doc in doc_db:
-        vocab.extend(doc_db[doc]['tf'].keys())
+        vocab.extend(doc_db[doc]["tf"].keys())
 
     unique_vocab = list(set(vocab))
 
     for doc in doc_db:
         normalized_tf = {}
         for word in unique_vocab:
-            normalized_tf[word] = doc_db[doc]['tf'].get(word, 0)
-        doc_db[doc]['tf'] = normalized_tf
+            normalized_tf[word] = doc_db[doc]["tf"].get(word, 0)
+        doc_db[doc]["tf"] = normalized_tf
     return doc_db, unique_vocab
 
 
-def compute_word_doc_occurrences(doc_db:Dict, vocab:List) -> Dict:
+def compute_word_doc_occurrences(doc_db: Dict, vocab: List) -> Dict:
     """
     Computes number of documents containing each word in unique vocab
 
@@ -122,12 +126,12 @@ def compute_word_doc_occurrences(doc_db:Dict, vocab:List) -> Dict:
     for word in vocab:
         count = 0
         for doc in doc_db:
-            count += math.ceil(doc_db[doc]['tf'][word])
+            count += math.ceil(doc_db[doc]["tf"][word])
         occurrences[word] = count
     return occurrences
 
 
-def compute_tf_idf(doc_db:Dict, word_occurrences:Dict) -> Dict:
+def compute_tf_idf(doc_db: Dict, word_occurrences: Dict) -> Dict:
     """
     computes idf and tf_idf for each term in each document
 
@@ -152,12 +156,12 @@ def compute_tf_idf(doc_db:Dict, word_occurrences:Dict) -> Dict:
     for doc in doc_db:
         idf = {}
         tf_idf = {}
-        for word in doc_db[doc]['tf']:
+        for word in doc_db[doc]["tf"]:
             idf[word] = math.log(num_docs / word_occurrences[word])
-            tf_idf[word] = idf[word] * doc_db[doc]['tf'][word]
+            tf_idf[word] = idf[word] * doc_db[doc]["tf"][word]
 
-        doc_db[doc]['idf'] = idf
-        doc_db[doc]['tf_idf']= tf_idf
+        doc_db[doc]["idf"] = idf
+        doc_db[doc]["tf_idf"] = tf_idf
     return doc_db
 
 
@@ -176,9 +180,9 @@ def compute_pairwise_sim(doc1, doc2, unique_vocab):
         float
     """
     # python doesn't promise an order on dicts
-    doc1_array = np.array([doc1[val] for val in unique_vocab ])
-    doc2_array = np.array([doc2[val] for val in unique_vocab ])
-    return np.dot(doc1_array,doc1_array)/(norm(doc1_array)*norm(doc2_array))
+    doc1_array = np.array([doc1[val] for val in unique_vocab])
+    doc2_array = np.array([doc2[val] for val in unique_vocab])
+    return np.dot(doc1_array, doc1_array) / (norm(doc1_array) * norm(doc2_array))
 
 
 def run_pairwise():
@@ -195,9 +199,7 @@ def run_pairwise():
     for doc1 in doc_db:
         for doc2 in doc_db:
             pairwise_sims[(doc1, doc2)] = compute_pairwise_sim(
-                doc_db[doc1]['tf_idf'],
-                doc_db[doc2]['tf_idf'],
-                vocab
+                doc_db[doc1]["tf_idf"], doc_db[doc2]["tf_idf"], vocab
             )
     print(pairwise_sims)
 

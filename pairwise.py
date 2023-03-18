@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 from numpy.linalg import norm
-from typing import Mapping, List, Tuple, Dict
+from typing import List, Tuple, Dict
 from collections import Counter
 
 from inputs import SAMPLE_DOCS
@@ -25,10 +25,9 @@ def convert_doc_to_list(doc:str) -> List:
     return doc.translate(str.maketrans('', '', string.punctuation)).replace('\n', ' ').split(' ')
 
 
-def convert_doc_words_to_tf(doc:List) -> Mapping[str, int]:
+def convert_doc_words_to_tf(doc:List) -> Dict[str, int]:
     """
-    Takes a single document and returns term frequency for each word in documenbt,
-    stripping out punctuation
+    Takes a single document and returns term frequency for each word in documenbt
 
     term_frequency = occurences / total num words in doc
 
@@ -52,7 +51,7 @@ def convert_doc_words_to_tf(doc:List) -> Mapping[str, int]:
     return {word: counts[word] / num_words for word in counts.keys()}
 
 
-def build_base_doc_db(raw_docs:List[str]) -> Mapping[str, dict]:
+def build_base_doc_db(raw_docs:List[str]) -> Dict[str, dict]:
     """
     Returns a basic db which contains an id for each doc along with term frequency map for the doc.
 
@@ -76,7 +75,7 @@ def build_base_doc_db(raw_docs:List[str]) -> Mapping[str, dict]:
     return doc_db
 
 
-def normalize_tf(doc_db:Mapping[str, dict]):
+def normalize_tf(doc_db:Dict[str, dict]):
     """
     Builds tf for each doc based on a global vocabulary of documents.
 
@@ -102,7 +101,6 @@ def normalize_tf(doc_db:Mapping[str, dict]):
         for word in unique_vocab:
             normalized_tf[word] = doc_db[doc]['tf'].get(word, 0)
         doc_db[doc]['tf'] = normalized_tf
-
     return doc_db, unique_vocab
 
 
@@ -124,9 +122,8 @@ def compute_word_doc_occurrences(doc_db:Dict, vocab:List) -> Dict:
     for word in vocab:
         count = 0
         for doc in doc_db:
-            count += math.ceil(doc_db[doc]['tf'].get(word, 0))
+            count += math.ceil(doc_db[doc]['tf'][word])
         occurrences[word] = count
-
     return occurrences
 
 
@@ -161,8 +158,6 @@ def compute_tf_idf(doc_db:Dict, word_occurrences:Dict) -> Dict:
 
         doc_db[doc]['idf'] = idf
         doc_db[doc]['tf_idf']= tf_idf
-
-
     return doc_db
 
 
@@ -177,7 +172,8 @@ def compute_pairwise_sim(doc1, doc2, unique_vocab):
         doc2[Dict]: tf_idf map for each word in unique_vocab
         unqiue_vocab: all words in vocab
 
-
+    Return:
+        float
     """
     # python doesn't promise an order on dicts
     doc1_array = np.array([doc1[val] for val in unique_vocab ])
@@ -195,7 +191,6 @@ def run_pairwise():
     doc_db = compute_tf_idf(doc_db, unique_words_doc_occurrences)
 
     pairwise_sims = {}
-
     # TODO: fix order independent pairing dupes
     for doc1 in doc_db:
         for doc2 in doc_db:
@@ -204,9 +199,7 @@ def run_pairwise():
                 doc_db[doc2]['tf_idf'],
                 vocab
             )
-
     print(pairwise_sims)
-
 
 
 if __name__ == "__main__":

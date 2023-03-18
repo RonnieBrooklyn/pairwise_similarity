@@ -2,7 +2,7 @@
 Computes pairwise similarity of term-frequency inverse document frequency vectors of sample text. 
 
 # Committment
-Spent 2 hours on this while watching March Madness on Friday, March 17
+Spent 2-3 hours on this while watching March Madness on Friday, March 17 (took breaks when games were compelling!) 
 
 #References
 https://towardsdatascience.com/text-vectorization-term-frequency-inverse-document-frequency-tfidf-5a3f9604da6d

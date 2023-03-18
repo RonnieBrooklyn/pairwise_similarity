@@ -29,4 +29,6 @@ One macro unit test is to be sure pairwise of one doc with itself is 1. That is 
 UPDATE: Took 35 minutes during son's nap next day and wrote some unit tests. 
 
 ```pip install pytest```
+
+
 ```pytest unit_test.py```

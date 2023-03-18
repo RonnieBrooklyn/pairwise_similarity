@@ -23,5 +23,6 @@ text - https://constitutioncenter.org/the-constitution/full-text
 PYTHONPATH=. python pairwise.py
 
 # To Test
-
+Ran out of time, but code is written in a modular fashion to allow unit testing of each fn. 
+One macro unit test is to be sure pairwise of one doc with itself is 1. That is tested in output of fun, 
 

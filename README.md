@@ -1,2 +1,8 @@
 # pairwise_similarity
-tiff
+
+# To Run
+PYTHONPATH=. python pairwise.py
+
+# To Test
+
+
